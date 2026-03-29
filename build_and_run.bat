@@ -6,8 +6,12 @@ echo OmniSim Engine - Build ^& Run
 echo ===============================
 
 set "BUILD_DIR=build"
-set "EXEC=omnisim_cli.exe"
+set "EXEC_GUI=omnisim_projectile_2d.exe"
+set "EXEC_CLI=omnisim_cli.exe"
 set "SIM_ARG=%~1"
+if "%SIM_ARG%"=="" (
+    set "SIM_ARG=projectile"
+)
 
 where cmake >nul 2>&1
 if %ERRORLEVEL% neq 0 (
@@ -49,28 +53,47 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-if exist "Debug\%EXEC%" (
-    set "RUN_PATH=Debug\%EXEC%"
-) else if exist "Release\%EXEC%" (
-    set "RUN_PATH=Release\%EXEC%"
-) else if exist "RelWithDebInfo\%EXEC%" (
-    set "RUN_PATH=RelWithDebInfo\%EXEC%"
-) else if exist "MinSizeRel\%EXEC%" (
-    set "RUN_PATH=MinSizeRel\%EXEC%"
-) else if exist "%EXEC%" (
-    set "RUN_PATH=%EXEC%"
+set "RUN_PATH="
+set "RUN_MODE=GUI"
+
+if exist "Debug\%EXEC_GUI%" (
+    set "RUN_PATH=Debug\%EXEC_GUI%"
+) else if exist "Release\%EXEC_GUI%" (
+    set "RUN_PATH=Release\%EXEC_GUI%"
+) else if exist "RelWithDebInfo\%EXEC_GUI%" (
+    set "RUN_PATH=RelWithDebInfo\%EXEC_GUI%"
+) else if exist "MinSizeRel\%EXEC_GUI%" (
+    set "RUN_PATH=MinSizeRel\%EXEC_GUI%"
+) else if exist "%EXEC_GUI%" (
+    set "RUN_PATH=%EXEC_GUI%"
+) else if exist "Debug\%EXEC_CLI%" (
+    set "RUN_PATH=Debug\%EXEC_CLI%"
+    set "RUN_MODE=CLI"
+) else if exist "Release\%EXEC_CLI%" (
+    set "RUN_PATH=Release\%EXEC_CLI%"
+    set "RUN_MODE=CLI"
+) else if exist "RelWithDebInfo\%EXEC_CLI%" (
+    set "RUN_PATH=RelWithDebInfo\%EXEC_CLI%"
+    set "RUN_MODE=CLI"
+) else if exist "MinSizeRel\%EXEC_CLI%" (
+    set "RUN_PATH=MinSizeRel\%EXEC_CLI%"
+    set "RUN_MODE=CLI"
+) else if exist "%EXEC_CLI%" (
+    set "RUN_PATH=%EXEC_CLI%"
+    set "RUN_MODE=CLI"
 ) else (
-    echo ERROR: No se encontro el ejecutable %EXEC%.
+    echo ERROR: No se encontro ni %EXEC_GUI% ni %EXEC_CLI%.
     popd
     pause
     exit /b 1
 )
 
 echo.
-echo Ejecutando %RUN_PATH%...
-if "%SIM_ARG%"=="" (
+if "%RUN_MODE%"=="GUI" (
+    echo Ejecutando interfaz 2D: %RUN_PATH%
     "%RUN_PATH%"
 ) else (
+    echo Ejecutando CLI: %RUN_PATH% %SIM_ARG%
     "%RUN_PATH%" "%SIM_ARG%"
 )
 

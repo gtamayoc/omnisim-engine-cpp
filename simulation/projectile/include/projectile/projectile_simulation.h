@@ -13,6 +13,7 @@ struct ProjectileConfig {
     math::Vector2 initial_velocity{30.0, 30.0};
     math::Vector2 gravity{0.0, -9.81};
     double max_duration_seconds{20.0};
+    bool enable_console_output{true};
 };
 
 class ProjectileSimulation final : public simulation::ISimulation {
@@ -24,6 +25,7 @@ public:
     [[nodiscard]] bool is_finished() const noexcept override;
     [[nodiscard]] std::string_view name() const noexcept override;
     void print_state() const override;
+    [[nodiscard]] const ProjectileState& state() const noexcept;
 
 private:
     ProjectileConfig config_{};

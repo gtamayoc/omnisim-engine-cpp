@@ -38,6 +38,7 @@ target_link_libraries(omnisim_engine PUBLIC
 
 add_library(omnisim_projectile STATIC
     simulation/projectile/src/projectile_simulation.cpp
+    simulation/projectile/src/terrain_profile.cpp
 )
 target_include_directories(omnisim_projectile PUBLIC
     simulation/projectile/include
@@ -54,3 +55,14 @@ target_link_libraries(omnisim_cli PRIVATE
     omnisim_engine
     omnisim_projectile
 )
+
+if(WIN32)
+    add_executable(omnisim_projectile_2d WIN32
+        app/projectile_2d_main.cpp
+    )
+    target_link_libraries(omnisim_projectile_2d PRIVATE
+        omnisim_projectile
+        gdi32
+        user32
+    )
+endif()

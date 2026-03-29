@@ -42,9 +42,16 @@ std::string_view ProjectileSimulation::name() const noexcept {
 }
 
 void ProjectileSimulation::print_state() const {
+    if (!config_.enable_console_output) {
+        return;
+    }
     std::cout << "[projectile] t=" << state_.elapsed_seconds << "s"
               << " pos=(" << state_.position.x << ", " << state_.position.y << ")"
               << " vel=(" << state_.velocity.x << ", " << state_.velocity.y << ")\n";
+}
+
+const ProjectileState& ProjectileSimulation::state() const noexcept {
+    return state_;
 }
 
 }  // namespace omnisim::projectile
