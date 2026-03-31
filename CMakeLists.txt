@@ -64,5 +64,6 @@ if(WIN32)
         omnisim_projectile
         gdi32
         user32
+        psapi
     )
 endif()

@@ -11,6 +11,9 @@ void ProjectileSimulation::initialize() {
     state_.position = config_.initial_position;
     state_.velocity = config_.initial_velocity;
     state_.acceleration = config_.gravity;
+    if (config_.air_drag_coefficient > 0.0) {
+        state_.acceleration -= state_.velocity * config_.air_drag_coefficient;
+    }
     state_.elapsed_seconds = 0.0;
     finished_ = false;
 }
@@ -18,6 +21,11 @@ void ProjectileSimulation::initialize() {
 void ProjectileSimulation::step(const double dt_seconds) {
     if (finished_ || dt_seconds <= 0.0) {
         return;
+    }
+
+    state_.acceleration = config_.gravity;
+    if (config_.air_drag_coefficient > 0.0) {
+        state_.acceleration -= state_.velocity * config_.air_drag_coefficient;
     }
 
     // Semi-implicit Euler keeps energy behavior more stable than explicit Euler.

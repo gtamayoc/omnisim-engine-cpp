@@ -14,6 +14,8 @@ struct ProjectileConfig {
     math::Vector2 gravity{0.0, -9.81};
     double max_duration_seconds{20.0};
     bool enable_console_output{true};
+    /// Linear air drag: acceleration += -coefficient * velocity (0 disables).
+    double air_drag_coefficient{0.0};
 };
 
 class ProjectileSimulation final : public simulation::ISimulation {
