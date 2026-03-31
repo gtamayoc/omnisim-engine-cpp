@@ -5,8 +5,18 @@
 #include "simulation/i_simulation.h"
 
 #include <string_view>
+#include <memory>
+
+#include "projectile/terrain_profile.h"
+#include "projectile/i_projectile.h"
 
 namespace omnisim::projectile {
+
+enum class ProjectileType {
+    Simple,
+    Grenade,
+    Missile
+};
 
 struct ProjectileConfig {
     math::Vector2 initial_position{0.0, 0.0};
@@ -16,6 +26,15 @@ struct ProjectileConfig {
     bool enable_console_output{true};
     /// Linear air drag: acceleration += -coefficient * velocity (0 disables).
     double air_drag_coefficient{0.0};
+    
+    ProjectileType type{ProjectileType::Simple};
+    const TerrainProfile* terrain{nullptr};
+    
+    /// Restitution coefficient for bouncing objects.
+    double bounciness{0.5};
+    
+    /// Mass of the projectile (used for drag and collisions).
+    double mass{1.0};
 };
 
 class ProjectileSimulation final : public simulation::ISimulation {
@@ -33,6 +52,7 @@ private:
     ProjectileConfig config_{};
     ProjectileState state_{};
     bool finished_{false};
+    std::unique_ptr<IProjectile> projectile_{nullptr};
 };
 
 }  // namespace omnisim::projectile

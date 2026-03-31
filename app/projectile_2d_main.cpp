@@ -84,6 +84,8 @@ struct AppState {
     bool trace_path{true};
     bool air_resistance{false};
 
+    omnisim::projectile::ProjectileType proj_type{omnisim::projectile::ProjectileType::Simple};
+
     int preset_selected{0};
 
     double camera_center_x{150.0};
@@ -289,6 +291,8 @@ void reset_projectile() {
     cfg.max_duration_seconds = 60.0;
     cfg.enable_console_output = false;
     cfg.air_drag_coefficient = g_state.air_resistance ? kAirDragCoeff : 0.0;
+    cfg.terrain = &g_state.terrain;
+    cfg.type = g_state.proj_type;
 
     g_state.simulation = std::make_unique<omnisim::projectile::ProjectileSimulation>(cfg);
     g_state.simulation->initialize();
@@ -322,8 +326,8 @@ void update_simulation(const double dt) {
             g_state.flight_path.back() = clamped_pos;
         }
     }
-    const double ground = terrain_world_y(s.position.x);
-    if (s.position.y <= ground) {
+    
+    if (g_state.simulation->is_finished()) {
         g_state.impact = true;
         g_state.launched = false;
     }
@@ -640,8 +644,12 @@ void draw_scene(HDC hdc) {
     SelectObject(hdc, g_state.font_ui);
     char top[256];
     const double t = g_state.simulation ? g_state.simulation->state().elapsed_seconds : 0.0;
-    std::snprintf(top, sizeof(top), "ENGINE: PHYSX_STABLE     TIME: %.3fs     G: %.2f m/s^2", t, g_state.gravity);
-    draw_text_left(hdc, g_state.width - 420, 16, top, RGB(0, 210, 230));
+    const char* p_name = "SIMPLE";
+    if (g_state.proj_type == omnisim::projectile::ProjectileType::Grenade) p_name = "GRENADE";
+    if (g_state.proj_type == omnisim::projectile::ProjectileType::Missile) p_name = "MISSILE";
+
+    std::snprintf(top, sizeof(top), "ENGINE: PHYSX_STABLE     MODE: %s     TIME: %.3fs     G: %.2f m/s^2", p_name, t, g_state.gravity);
+    draw_text_left(hdc, g_state.width - 550, 16, top, RGB(0, 210, 230));
 
     fill_rect(hdc, g_state.layout.left_panel, RGB(24, 28, 38));
     frame_rect(hdc, g_state.layout.left_panel, RGB(55, 62, 78));
@@ -724,6 +732,8 @@ void draw_scene(HDC hdc) {
     SelectClipRgn(hdc, nullptr);
     DeleteObject(clip);
 
+    draw_text_left(hdc, g_state.layout.left_panel.left + 12, g_state.layout.left_panel.bottom - 42,
+                   "Mode: 4=Simple, 5=Grenade, 6=Missile", RGB(110, 125, 145));
     draw_text_left(hdc, g_state.layout.left_panel.left + 12, g_state.layout.left_panel.bottom - 22,
                    "Wheel: zoom   Right-drag: pan   Space: launch", RGB(110, 125, 145));
 }
@@ -974,6 +984,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         case '3':
             g_state.gravity = 3.71;
             g_state.preset_selected = 2;
+            reset_projectile();
+            return 0;
+        case '4':
+            g_state.proj_type = omnisim::projectile::ProjectileType::Simple;
+            reset_projectile();
+            return 0;
+        case '5':
+            g_state.proj_type = omnisim::projectile::ProjectileType::Grenade;
+            reset_projectile();
+            return 0;
+        case '6':
+            g_state.proj_type = omnisim::projectile::ProjectileType::Missile;
             reset_projectile();
             return 0;
         default:
