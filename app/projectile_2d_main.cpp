@@ -323,7 +323,7 @@ void update_simulation(const double dt) {
         }
     }
     const double ground = terrain_world_y(s.position.x);
-    if (s.position.y <= ground || s.position.x > kWorldXMax) {
+    if (s.position.y <= ground) {
         g_state.impact = true;
         g_state.launched = false;
     }
@@ -556,9 +556,6 @@ void draw_viewport_world(HDC hdc) {
                 double x = cannon_x + vx * t;
                 double y = y0 + vy * t - 0.5 * g_state.gravity * t * t;
                 const double ground = terrain_world_y(x);
-                if (x > kWorldXMax * 1.5) {
-                    break;
-                }
                 int sx = 0;
                 int sy = 0;
                 world_to_screen(x, y, sx, sy);
